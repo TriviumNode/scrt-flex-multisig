@@ -54,6 +54,10 @@ pub fn execute(
         ExecuteMsg::ProposeAction { prop_msg } => propose_new_action(deps, env, info, prop_msg),
         ExecuteMsg::VoteAction { action_prop } => vote_new_action(deps, env, info, action_prop),
         ExecuteMsg::RevokePermit { permit_name } => revoke_permit(deps, env, info, permit_name),
+        ExecuteMsg::PurgeExpiredActions {
+            start_page,
+            page_size,
+        } => purge_expired_actions(deps, env, info, start_page, page_size),
     }
 }
 

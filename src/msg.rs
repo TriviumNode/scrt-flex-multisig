@@ -25,6 +25,10 @@ pub enum ExecuteMsg {
     VoteAction {
         action_prop: Uint128,
     },
+    PurgeExpiredActions {
+        start_page: Option<u32>,
+        page_size: Option<u32>,
+    },
     CreateViewingKey {
         entropy: String,
     },
