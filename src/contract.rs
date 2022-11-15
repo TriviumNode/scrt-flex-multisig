@@ -11,7 +11,7 @@ use crate::error::ContractError;
 use crate::msg::{ExecuteMsg, InstantiateMsg, QueryAnswer, QueryMsg, QueryWithPermit};
 use crate::state::{
     Config, ExtActionProposition, COMPLETED_ACTIONS, CONFIG_KEY, PENDING_ACTIONS,
-    PREFIX_REVOKED_PERMITS, STAKEHOLDERS, TOT_PROPS, TOT_VOTES,
+    PREFIX_REVOKED_PERMITS, STAKEHOLDERS, TOT_PROPS, TOT_VOTES, VOTE_RECORD,
 };
 
 pub const DEFAULT_PAGE_SIZE: u32 = 200;
@@ -27,6 +27,13 @@ pub fn instantiate(
         contract_address: env.contract.address,
         prop_time_limit: msg.time_limit,
     };
+
+    let mut total_votes = Uint128::from(0_u128);
+    for stakeholder in msg.stakeholders.iter() {
+        STAKEHOLDERS.insert(deps.storage, &stakeholder.holder, &stakeholder.stake)?;
+        total_votes += stakeholder.stake;
+    }
+    TOT_VOTES.save(deps.storage, &total_votes)?;
 
     // Save data to storage
     CONFIG_KEY.save(deps.storage, &config)?;
@@ -168,7 +175,21 @@ fn vote_new_action(
         return Err(ContractError::CustomError {
             val: "You do not have a share in this contract".to_string(),
         });
+    } else if VOTE_RECORD
+        .add_suffix(&action_prop.to_be_bytes())
+        .contains(deps.storage, &info.sender.to_string())
+    {
+        return Err(ContractError::CustomError {
+            val: "You have already voted on this prop".to_string(),
+        });
     }
+
+    // records voting roll
+    VOTE_RECORD.add_suffix(&action_prop.to_be_bytes()).insert(
+        deps.storage,
+        &info.sender.to_string(),
+        &true,
+    )?;
 
     let mut prop = PENDING_ACTIONS.get(deps.storage, &action_prop).unwrap();
     let tot_votes = TOT_VOTES.load(deps.storage)?;

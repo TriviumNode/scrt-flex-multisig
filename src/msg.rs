@@ -9,7 +9,8 @@ pub const BLOCK_SIZE: usize = 256;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct InstantiateMsg {
-    pub time_limit: u64,
+    pub time_limit: u64, // time before props expire, in seconds
+    pub stakeholders: Vec<StakeAssignment>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -125,4 +126,11 @@ pub struct ContractInfo {
     pub code_hash: String,
     /// contract's address
     pub address: String,
+}
+
+/// address and stake combo
+#[derive(Serialize, Deserialize, JsonSchema, PartialEq, Eq, Clone, Debug)]
+pub struct StakeAssignment {
+    pub holder: String,
+    pub stake: Uint128,
 }

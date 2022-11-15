@@ -21,6 +21,9 @@ pub static PENDING_ACTIONS: Keymap<Uint128, ExtActionProposition, Json> =
 /// Map of pending stake adjustments
 pub static COMPLETED_ACTIONS: Keymap<Uint128, ExtActionProposition> = Keymap::new(b"stakeprop");
 
+// Record of whether an address voted. Must be used with a suffix of the prop ID
+pub static VOTE_RECORD: Keymap<String, bool> = Keymap::new(b"stakeprop");
+
 /// Basic configuration struct
 pub static CONFIG_KEY: Item<Config> = Item::new(b"config");
 /// Revoked permits prefix key
